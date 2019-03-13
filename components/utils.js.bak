@@ -1,0 +1,151 @@
+const https = require('https');
+const axios = require('axios');
+// const logger = require('./logger');
+
+// This could potentially be switched out with another library like Axios or Bluebird
+// Putting it here means we only have to make one change
+
+/**
+* Private function
+* Uses native Node https function to handle AJAX requests
+* @param {object} opts - HTTP Request options
+* @param {function} callback - function that passes results back to getNews
+* @return {object} Parsed JSON object
+*/
+const buildRequest = (opts) => {
+  const response = new Promise((resolve) => {
+    https.request(opts, (resp) => {
+      const data = [];
+      resp.setEncoding('utf8');
+      resp.on('data', (chunk) => {
+        data.push(chunk);
+      }).on('end', () => {
+        resolve(data.join(''));
+        console.log('end');
+      });
+    }).on('error', (e) => {
+      // logger.error(e.message, 'in method: buildRequest', opts);
+    }).end();
+  })
+    .catch(console.log, console.error);
+  return response;
+};
+
+/**
+* Private function
+* Uses native Node https function to handle AJAX requests
+* @param {object} opts - HTTP Request options
+* @param {function} callback - function that passes results back to getNews
+* @return {object} Parsed JSON object
+*/
+const buildMultiRequest = (opts, callback) => {
+  https.request(opts, (resp) => {
+    const data = [];
+    resp.setEncoding('utf8');
+    resp.on('data', (chunk) => {
+      data.push(chunk);
+    }).on('end', () => {
+      callback(null, JSON.parse(data.join('')));
+    });
+  }).on('error', (e) => {
+    logger.error(e.message, 'in method: buildMultiRequest', opts);
+  }).end();
+
+};
+
+const post = (options, callback) => {
+  const opts = !(options instanceof Array) ? [options] : options;
+  const promises = [];
+  let host = '';
+  let port = '';
+  let path = '';
+  opts.forEach((item) => {
+    host = item.hostname || 'localhost';
+    port = item.port || 80;
+    path = item.path;
+    promises.push(axios.post(`http://${host}:${port}${path}`, JSON.stringify(item.data)));
+  });
+  axios.all(promises).then((response) => {
+    response.forEach((item) => {
+      callback(item.data);
+    });
+  }).catch((error) => {
+    console.log('+++++++++++++++++++++++++++++++++++++++++++++++', error);
+  });
+};
+
+const format = (data, res) => {
+  // const fmt = req.params.format;
+  let response = res || '';
+  const d = (typeof data === 'string' || data instanceof String) ? JSON.parse(data) : data;
+  // if (formats.indexOf(fmt) !== -1) {
+  // switch (fmt) {
+  //   case 'json':
+  //  default:
+  if (res) {
+    response.setHeader('Content-Type', 'application/json');
+    response.send(JSON.stringify(d, null, 4));
+  } else {
+    response = JSON.stringify(d, null, 4);
+  }
+  return response;
+  // }
+  // }
+};
+
+const imageTest = (url) => {
+  const images = /\.(jpe?g|png|gifv?|svg)/;
+  return (url.match(images) !== null) || false;
+};
+
+const mediaTest = (url) => {
+  const media = /youtu\.?be/;
+  return (url.match(media) !== null) || false;
+};
+
+const Filter = class {
+
+  constructor(keyword, text) {
+    this.keyword = !(keyword instanceof Array) ? [keyword] : keyword;
+    this.text = !(text instanceof Array) ? [text] : text;
+    //this.tag = '';
+  }
+
+  //get keyword() {
+  //  return this.foundKeyword()
+  //}
+
+  //get tag() {
+  //  this.tag();
+  //}
+
+  findKeyword() {
+    const pattern = this.keyword.join('|');
+    return this.text.some(item => new RegExp(pattern, 'gi').test(item));
+  }
+};
+
+const Stats = class {
+
+  constructor(scanned, matches) {
+    this.scanned = '';  // total articles scanned
+    this.matches = '';  // total keyword matches
+  }
+
+
+  // findKeyword() {
+  //   const pattern = this.keyword.join('|');
+  //   return this.text.some(item => new RegExp(pattern, 'gi').test(item));
+  // }
+};
+
+
+module.exports = {
+  buildRequest,
+  buildMultiRequest,
+  format,
+  imageTest,
+  mediaTest,
+  post,
+  Filter,
+};

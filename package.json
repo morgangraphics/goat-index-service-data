@@ -1,0 +1,32 @@
+{
+  "name": "goat-index-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --inspect server.js --ignore node_modules/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DM00000",
+  "license": "ISC",
+  "devDependencies": {
+    "axios": "0.18.0",
+    "boom": "7.3.0",
+    "bunyan": "1.8.12",
+    "debug": "4.1.1",
+    "dotenv": "6.2.0",
+    "eslint": "5.12.1",
+    "eslint-config-airbnb": "17.1.0",
+    "eslint-plugin-html": "5.0.0",
+    "eslint-plugin-import": "2.16.0",
+    "eslint-plugin-security": "1.4.0",
+    "hapi": "18.0.0",
+    "joi": "14.3.1",
+    "snoowrap": "1.15.2"
+  },
+  "dependencies": {
+    "hapi-swagger": "9.3.0",
+    "inert": "5.1.2",
+    "vision": "5.4.4"
+  }
+}
